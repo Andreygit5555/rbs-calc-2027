@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>RBS.RENT — калькулятор сезона 2027</title>
+<style>
+  :root{
+    --navy:#0F1E33; --ink:#1B2A41; --amber:#F5B335; --bg:#F3F6F9;
+    --card:#FFFFFF; --line:#E1E7EE; --muted:#6B7785; --soft:#F7F9FB;
+    --red:#C2412D; --redbg:#FDF3F1; --green:#1F7A5C; --greenbg:#EDF7F2;
+    --shadow:0 1px 2px rgba(15,30,51,.04), 0 8px 24px rgba(15,30,51,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink);
+    font-size:14px; line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+  }
+  button{font-family:inherit}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 22px 40px}
+
+  /* ---------- header ---------- */
+  .top{
+    background:var(--navy); color:#fff;
+    padding:20px 0 18px; margin-bottom:18px;
+    position:relative; overflow:hidden;
+  }
+  .top:after{
+    content:""; position:absolute; right:-80px; top:-120px;
+    width:360px; height:360px; border-radius:50%;
+    background:radial-gradient(circle, rgba(245,179,53,.22), rgba(245,179,53,0) 68%);
+  }
+  .top .wrap{display:flex; align-items:center; justify-content:space-between; gap:18px; position:relative; z-index:1}
+  .brand{font-weight:800; font-size:15px; letter-spacing:.03em}
+  .brand span{color:var(--amber)}
+  .brand small{
+    display:block; margin-top:2px; font-weight:400; font-size:9px;
+    letter-spacing:.2em; color:#9FB0C6; text-transform:uppercase;
+  }
+  .top .actions{display:flex; gap:8px; flex-wrap:wrap}
+  .btn{
+    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06);
+    color:#fff; border-radius:8px; padding:8px 12px; font-size:12px;
+    cursor:pointer; transition:background .15s, border-color .15s;
+  }
+  .btn:hover{background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.35)}
+  .btn.amber{background:var(--amber); color:var(--navy); border-color:var(--amber); font-weight:700}
+  .btn.amber:hover{background:#FFC64D}
+
+  /* ---------- intro ---------- */
+  .intro{display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin:4px 0 16px}
+  .intro h1{font-size:28px; line-height:1.1; letter-spacing:-.02em; margin:0}
+  .intro p{margin:6px 0 0; color:var(--muted); font-size:13px; max-width:720px}
+  .status{
+    flex:none; padding:8px 14px; border-radius:999px; font-size:12px; font-weight:700;
+    background:var(--greenbg); color:var(--green); border:1px solid #CFE8DD;
+  }
+  .status.neutral{background:#FFF7E3; color:#8A5E00; border-color:#F3DFA8}
+  .status.neg{background:var(--redbg); color:var(--red); border-color:#F0C9C1}
+
+  /* ---------- layout ---------- */
+  .layout{display:grid; grid-template-columns:330px minmax(0,1fr); gap:16px; align-items:start}
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow);
+  }
+  .controls{padding:16px 16px 8px}
+  .controls h2{font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:0 0 10px}
+  .presets{display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:16px}
+  .preset{
+    text-align:left; border:1px solid var(--line); background:#fff; border-radius:8px;
+    padding:8px 9px; cursor:pointer; transition:all .15s;
+  }
+  .preset b{display:block; font-size:12px; color:var(--ink)}
+  .preset small{display:block; font-size:9.5px; color:var(--muted); margin-top:1px; line-height:1.3}
+  .preset:hover{border-color:#B9C5D4; background:#FBFCFE}
+  .preset.active{border-color:var(--navy); background:var(--navy)}
+  .preset.active b{color:#fff}
+  .preset.active small{color:#B9C6D8}
+
+  .control{padding:11px 0 12px; border-top:1px solid #EEF1F5}
+  .control .row{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+  .control .name{font-size:12.5px; font-weight:600}
+  .control .value{font-size:14px; font-weight:800; letter-spacing:-.01em; white-space:nowrap}
+  .control .value small{font-size:10px; font-weight:600; color:var(--muted); margin-left:2px}
+  .control .hint{font-size:10.5px; color:var(--muted); margin-top:2px; line-height:1.3}
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:6px; margin:10px 0 2px;
+    border-radius:99px; outline:none; cursor:pointer;
+    background:linear-gradient(to right, var(--amber) 0 var(--p,50%), #E4E9F0 var(--p,50%) 100%);
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--navy); border:3px solid var(--amber);
+    box-shadow:0 1px 4px rgba(15,30,51,.28); cursor:grab;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:14px; height:14px; border-radius:50%; background:var(--navy);
+    border:3px solid var(--amber); box-shadow:0 1px 4px rgba(15,30,51,.28); cursor:grab;
+  }
+  .scale{display:flex; justify-content:space-between; font-size:9.5px; color:#9AA6B4; margin-top:1px}
+  .toggle-note{
+    margin:10px 0 0; padding:10px 11px; border-radius:8px; background:var(--soft);
+    border:1px dashed #D7DFE8; font-size:10.5px; color:var(--muted); line-height:1.4;
+  }
+
+  /* ---------- dashboard ---------- */
+  .dashboard{min-width:0}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  .kpi{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:13px 14px 12px; position:relative; overflow:hidden;
+  }
+  .kpi:before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--amber)}
+  .kpi.pos:before{background:var(--green)}
+  .kpi.neg:before{background:var(--red)}
+  .kpi.warn:before{background:#C98A12}
+  .kpi .label{font-size:9.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); line-height:1.2}
+  .kpi .num{font-size:25px; font-weight:800; letter-spacing:-.03em; line-height:1.1; margin-top:5px}
+  .kpi .num small{font-size:11px; font-weight:600; color:var(--muted); margin-left:2px; letter-spacing:0}
+  .kpi .sub{font-size:10.5px; color:var(--muted); margin-top:4px; line-height:1.25}
+  .kpi.neg .num{color:var(--red)}
+  .kpi.pos .num{color:var(--green)}
+  .kpi.warn .num{color:#8A5E00}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 11px}
+  .stat .l{font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); line-height:1.2}
+  .stat .v{font-size:15px; font-weight:800; margin-top:3px; letter-spacing:-.01em}
+  .stat .v small{font-size:9.5px; font-weight:600; color:var(--muted)}
+  .stat .d{font-size:9.5px; color:var(--muted); margin-top:1px}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:15px 16px 12px; margin-top:10px;
+  }
+  .card .head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px}
+  .card h2{font-size:14px; margin:0; letter-spacing:-.01em}
+  .card .sub{font-size:10.5px; color:var(--muted); margin-top:2px; line-height:1.3}
+  .legend{display:flex; gap:12px; align-items:center; font-size:10px; color:var(--muted); flex-wrap:wrap}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px}
+  .legend .c{background:var(--navy)} .legend .a{background:var(--amber)}
+
+  .chart{width:100%; height:auto; display:block; overflow:visible}
+  .chart text{font-family:"Helvetica Neue",Arial,sans-serif; fill:#7C8896}
+  .bars rect{transition:none}
+  .bars rect:hover{opacity:.78}
+
+  .cashline{width:100%; height:auto; display:block; overflow:visible}
+  .cashline text{font-family:"Helvetica Neue",Arial,sans-serif; fill:#7C8896}
+
+  .narrative{
+    margin-top:10px; background:var(--navy); color:#fff; border-radius:12px;
+    padding:13px 16px; font-size:12.5px; line-height:1.5; box-shadow:var(--shadow);
+  }
+  .narrative b{color:var(--amber)}
+  .narrative.neg{background:#3B1D18}
+  .narrative.neutral{background:#3C2F12}
+  .narrative .tag{
+    display:inline-block; font-size:9px; letter-spacing:.12em; text-transform:uppercase;
+    color:#B9C6D8; margin-right:8px; vertical-align:1px;
+  }
+
+  /* ---------- sensitivity ---------- */
+  .sens-wrap{overflow-x:auto; margin-top:4px}
+  table.sens{width:100%; border-collapse:separate; border-spacing:3px; min-width:520px}
+  .sens th{
+    font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    font-weight:600; padding:5px 4px; text-align:center; background:transparent;
+  }
+  .sens th.rowh{text-align:left; white-space:nowrap; padding-left:2px}
+  .sens td{
+    text-align:center; padding:7px 4px; border-radius:6px; font-size:11.5px;
+    font-weight:700; cursor:pointer; transition:outline .1s, transform .1s;
+    border:1px solid transparent;
+  }
+  .sens td:hover{outline:2px solid var(--navy); outline-offset:-1px}
+  .sens td.cur{border-color:var(--navy); box-shadow:inset 0 0 0 1px var(--navy)}
+  .sens .rowh-cell{
+    text-align:left; font-size:10.5px; font-weight:700; color:var(--ink);
+    background:#F7F9FB; border-radius:6px; padding:7px 8px; white-space:nowrap;
+  }
+  .sens .zero{font-size:9px; color:var(--muted); font-weight:600; display:block; margin-top:1px}
+
+  details{margin-top:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 16px}
+  details summary{cursor:pointer; font-size:12px; font-weight:700; color:var(--ink); outline:none}
+  details .body{font-size:11.5px; color:var(--muted); line-height:1.55; margin-top:8px}
+  details .body b{color:var(--ink)}
+  details .body code{background:#F1F4F8; padding:1px 5px; border-radius:4px; font-size:10.5px; color:#33465E}
+
+  .foot{margin-top:14px; display:flex; justify-content:space-between; gap:14px; font-size:9.5px; color:#8A96A5; line-height:1.4}
+  .foot b{color:#4C5A6B}
+  .foot a{color:var(--ink); text-decoration:underline; text-underline-offset:2px}
+
+  /* toast */
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translate(-50%, 20px);
+    background:var(--navy); color:#fff; padding:9px 15px; border-radius:8px;
+    font-size:12px; opacity:0; pointer-events:none; transition:all .2s; z-index:50;
+    box-shadow:0 8px 30px rgba(15,30,51,.3);
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0)}
+
+  @media (max-width:1060px){
+    .layout{grid-template-columns:1fr}
+    .controls{position:static}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .intro{flex-direction:column; align-items:flex-start}
+  }
+  @media (max-width:620px){
+    .wrap{padding:0 14px 28px}
+    .kpis{grid-template-columns:1fr 1fr; gap:8px}
+    .kpi .num{font-size:20px}
+    .stats{grid-template-columns:1fr 1fr}
+    .intro h1{font-size:22px}
+    .presets{grid-template-columns:1fr 1fr}
+  }
+
+  @media print{
+    body{background:#fff}
+    .top{background:#0F1E33 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    .top .actions,.controls,.presets,.toggle-note,.btn,.foot{display:none !important}
+    .wrap{max-width:none; padding:0}
+    .layout{display:block}
+    .card,.kpi,.stat,.narrative{box-shadow:none; break-inside:avoid}
+    .dashboard{display:block}
+    .kpis{grid-template-columns:repeat(4,1fr)}
+    .stats{grid-template-columns:repeat(4,1fr)}
+    .card{margin-top:8px}
+    details{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">RBS<span>.RENT</span><small>калькулятор сезона 2027</small></div>
+    <div class="actions">
+      <button class="btn" id="btnLink">Скопировать ссылку</button>
+      <button class="btn" id="btnReset">Сбросить</button>
+      <button class="btn amber" id="btnPrint">Печать / PDF</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div>
+      <h1>Калькулятор сезона 2027</h1>
+      <p>Двигайте рычаги — модель сразу пересчитывает выручку, рекламу, EBITDA, запас денег и точку безубыточности. Всё считается по экономике сезона-26 и сезонности май–октябрь.</p>
+    </div>
+    <div class="status" id="status">Около нуля</div>
+  </section>
+
+  <div class="layout">
+    <!-- ================= CONTROLS ================= -->
+    <aside class="panel controls">
+      <h2>Сценарии</h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="fact"><b>Факт-26</b><small>как было</small></button>
+        <button class="preset active" data-preset="base"><b>База-27</b><small>выйти в ноль</small></button>
+        <button class="preset" data-preset="stress"><b>Стресс</b><small>CAC 2 600</small></button>
+        <button class="preset" data-preset="growth"><b>Рост</b><small>3 500 клиентов</small></button>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Клиенты за сезон</span><span class="value"><span id="vClients">3 250</span><small>чел.</small></span></div>
+        <input type="range" id="clients" min="1500" max="5000" step="10" value="3250" aria-label="Клиенты за сезон">
+        <div class="scale"><span>1 500</span><span>3 250</span><span>5 000</span></div>
+        <div class="hint">уникальные платящие клиенты за сезон</div>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Комиссия с клиента</span><span class="value"><span id="vCommission">5 000</span><small>₽</small></span></div>
+        <input type="range" id="commission" min="3500" max="7000" step="5" value="5000" aria-label="Комиссия с клиента">
+        <div class="scale"><span>3 500</span><span>5 000</span><span>7 000</span></div>
+        <div class="hint">средняя комиссия с одной брони</div>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Стоимость клиента (CAC)</span><span class="value"><span id="vCac">2 350</span><small>₽</small></span></div>
+        <input type="range" id="cac" min="1000" max="5000" step="5" value="2350" aria-label="Стоимость привлечения клиента">
+        <div class="scale"><span>1 000</span><span>2 350</span><span>5 000</span></div>
+        <div class="hint">реклама ÷ число клиентов</div>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Постоянные расходы</span><span class="value"><span id="vFixed">8,7</span><small>млн ₽</small></span></div>
+        <input type="range" id="fixed" min="5000" max="16000" step="100" value="8700" aria-label="Постоянные расходы">
+        <div class="scale"><span>5</span><span>8,7</span><span>16</span></div>
+        <div class="hint">ФОТ, офис, лицензии, налоги, прочее</div>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Повторные клиенты</span><span class="value"><span id="vRepeat">15</span><small>%</small></span></div>
+        <input type="range" id="repeat" min="0" max="40" step="0.1" value="15" aria-label="Доля повторных клиентов">
+        <div class="scale"><span>0%</span><span>15%</span><span>40%</span></div>
+        <div class="hint">влияет на LTV, не на число клиентов</div>
+      </div>
+
+      <div class="control">
+        <div class="row"><span class="name">Запас на старте</span><span class="value"><span id="vReserve">12,0</span><small>млн ₽</small></span></div>
+        <input type="range" id="reserve" min="6000" max="20000" step="500" value="12000" aria-label="Запас на старте">
+        <div class="scale"><span>6</span><span>12</span><span>20</span></div>
+        <div class="hint">запас на старте плана, ноябрь 2026</div>
+      </div>
+
+      <div class="toggle-note">
+        Модель упрощённая: считает год целиком, без НДС и инвестиций. Сезонность — факт 2026: май 6%, июнь 27%, июль 35%, август 24%, сентябрь 6%, октябрь 1%.
+      </div>
+    </aside>
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="dashboard">
+      <div class="kpis">
+        <div class="kpi">
+          <div class="label">Выручка за сезон</div>
+          <div class="num"><span id="kRevenue">16,25</span><small>млн ₽</small></div>
+          <div class="sub" id="kRevenueSub">3 250 клиентов × 5 000 ₽</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Реклама</div>
+          <div class="num"><span id="kMarketing">7,64</span><small>млн ₽</small></div>
+          <div class="sub" id="kMarketingSub">93% от выручки · CAC 2 350 ₽</div>
+        </div>
+        <div class="kpi" id="kEbitdaCard">
+          <div class="label">EBITDA</div>
+          <div class="num"><span id="kEbitda">−0,09</span><small>млн ₽</small></div>
+          <div class="sub" id="kEbitdaSub">маржа −0,5%</div>
+        </div>
+        <div class="kpi" id="kCashCard">
+          <div class="label">Запас на конец</div>
+          <div class="num"><span id="kCash">11,91</span><small>млн ₽</small></div>
+          <div class="sub" id="kCashSub">старт 12,0 млн ₽</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="l">Безубыточность</div>
+          <div class="v" id="sBreakEven">3 283 <small>клиента</small></div>
+          <div class="d" id="sBreakEvenSub">при текущем CAC</div>
+        </div>
+        <div class="stat">
+          <div class="l">LTV / CAC</div>
+          <div class="v" id="sLtv">2,4×</div>
+          <div class="d" id="sLtvSub">повтор 15% в год</div>
+        </div>
+        <div class="stat">
+          <div class="l">Окупаемость клиента</div>
+          <div class="v" id="sPayback">0,5 <small>брони</small></div>
+          <div class="d" id="sPaybackSub">CAC / комиссия</div>
+        </div>
+        <div class="stat">
+          <div class="l">Запас: минимум</div>
+          <div class="v" id="sRunway">—</div>
+          <div class="d" id="sRunwaySub">12,0 млн ₽</div>
+        </div>
+      </div>
+
+      <div class="narrative" id="narrative">
+        <span class="tag">Вывод</span><span id="narrativeText"></span>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <div>
+            <h2>Выручка и реклама по месяцам</h2>
+            <div class="sub">Ноябрь 2026 — октябрь 2027, млн ₽</div>
+          </div>
+          <div class="legend"><span><i class="c"></i>выручка</span><span><i class="a"></i>реклама</span></div>
+        </div>
+        <svg class="chart" id="bars" viewBox="0 0 680 260" role="img" aria-label="Выручка и реклама по месяцам"></svg>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <div>
+            <h2>Деньги: сколько остаётся в запасе</h2>
+            <div class="sub">Накопленный остаток, млн ₽ · старт — текущий запас</div>
+          </div>
+          <div class="legend"><span id="cashLegend">мин. 7,6 · конец 11,9</span></div>
+        </div>
+        <svg class="cashline" id="cash" viewBox="0 0 680 230" role="img" aria-label="Остаток запаса по месяцам"></svg>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <div>
+            <h2>Чувствительность EBITDA</h2>
+            <div class="sub">Клик по ячейке — подставить клиентов и CAC в сценарий</div>
+          </div>
+          <div class="legend"><span>зелёный — плюс, красный — минус</span></div>
+        </div>
+        <div class="sens-wrap">
+          <table class="sens" id="sens"></table>
+        </div>
+      </div>
+
+      <details>
+        <summary>Как считается</summary>
+        <div class="body">
+          <b>Выручка</b> = клиенты × комиссия с клиента. <b>Реклама</b> = клиенты × CAC.
+          <b>EBITDA</b> = выручка − реклама − постоянные расходы. <b>Запас на конец</b> = старт + EBITDA.
+          <b>Безубыточность</b> = постоянные расходы ÷ (комиссия − CAC).
+          <b>LTV</b> = комиссия × (1 + доля повторных), <b>LTV/CAC</b> = LTV ÷ CAC.
+          <b>Деньги по месяцам</b> — те же выручка и реклама, разложенные по сезонности 2026; фикс — 1/12 в месяц.
+          <br><br>
+          Упрощения: нет НДС, эквайринга, инвестиций и выплат партнёрам (это транзитные деньги); повторные клиенты не увеличивают число клиентов, а только LTV. Модель нужна для быстрых сценариев, а не для замены P&amp;L.
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="foot">
+    <div><b>RBS.RENT · калькулятор-27.</b> База: P&amp;L 2026, отчёт по маркетингу 2026, модель P&amp;L 2027. <a href="RBS_Стратегия_2027.pdf" target="_blank">PDF-стратегия →</a></div>
+    <div>Данные округлены. Внутренний инструмент, не инвестиционная рекомендация.</div>
+  </div>
+</main>
+
+<div class="toast" id="toast">Готово</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = (s) => document.querySelector(s);
+
+  const MONTHS = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+  const MONTHS_FULL = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+  const MONTHS_PREP = ["январе","феврале","марте","апреле","мае","июне","июле","августе","сентябре","октябре","ноябре","декабре"];
+  // доля месяца в сезоне (факт 2026, май–октябрь)
+  const SHARE = {4:0.0605, 5:0.2729, 6:0.3517, 7:0.2409, 8:0.0639, 9:0.0103};
+  // план-год: ноябрь 2026 — октябрь 2027
+  const SEQ = [10,11,0,1,2,3,4,5,6,7,8,9];
+
+  const PRESETS = {
+    fact:   {c:2450, p:4735, a:4410, f:13900, r:3.9,  s:12000},
+    base:   {c:3250, p:5000, a:2350, f:8700,  r:15,   s:12000},
+    stress: {c:2800, p:4850, a:2600, f:8700,  r:10,   s:12000},
+    growth: {c:3500, p:5100, a:2200, f:8700,  r:20,   s:12000}
+  };
+
+  const state = Object.assign({}, PRESETS.base);
+
+  const fmtInt = (n) => new Intl.NumberFormat("ru-RU").format(Math.round(n));
+  const fmtM = (n) => (Math.abs(n) < 0.005 ? 0 : n).toLocaleString("ru-RU", {minimumFractionDigits:1, maximumFractionDigits:2});
+  const fmtM2 = (n) => (Math.abs(n) < 0.005 ? 0 : n).toLocaleString("ru-RU", {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtPct = (n) => n.toLocaleString("ru-RU", {minimumFractionDigits:1, maximumFractionDigits:1}) + "%";
+  const plural = (n, forms) => {
+    const a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  };
+  const sign = (n) => n >= 0 ? "+" : "−";
+  const abs = Math.abs;
+
+  function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
+
+  function readInputs(){
+    state.c = +$("#clients").value;
+    state.p = +$("#commission").value;
+    state.a = +$("#cac").value;
+    state.f = +$("#fixed").value;
+    state.r = +$("#repeat").value;
+    state.s = +$("#reserve").value;
+  }
+
+  function writeInputs(){
+    $("#clients").value = state.c;
+    $("#commission").value = state.p;
+    $("#cac").value = state.a;
+    $("#fixed").value = state.f;
+    $("#repeat").value = state.r;
+    $("#reserve").value = state.s;
+    syncFill();
+  }
+
+  function updateLabels(){
+    $("#vClients").textContent = fmtInt(state.c);
+    $("#vCommission").textContent = fmtInt(state.p);
+    $("#vCac").textContent = fmtInt(state.a);
+    $("#vFixed").textContent = fmtM(state.f / 1000);
+    $("#vRepeat").textContent = state.r.toLocaleString("ru-RU", {maximumFractionDigits:1});
+    $("#vReserve").textContent = fmtM(state.s / 1000);
+  }
+
+  function syncFill(){
+    document.querySelectorAll("input[type=range]").forEach(inp => {
+      const min = +inp.min, max = +inp.max, v = +inp.value;
+      const pct = ((v - min) / (max - min)) * 100;
+      inp.style.setProperty("--p", pct + "%");
+    });
+  }
+
+  function model(){
+    const C = state.c, P = state.p, A = state.a;
+    const F = state.f / 1000;           // млн ₽
+    const S = state.s / 1000;           // млн ₽
+    const R = state.r / 100;
+
+    const revenue = C * P / 1e6;        // млн ₽
+    const marketing = C * A / 1e6;      // млн ₽
+    const ebitda = revenue - marketing - F;
+    const margin = revenue > 0 ? ebitda / revenue * 100 : 0;
+    const cashEnd = S + ebitda;
+    const breakEven = (P - A) > 0 ? F * 1e6 / (P - A) : Infinity;
+    const ltv = P * (1 + R);
+    const ltvCac = A > 0 ? ltv / A : Infinity;
+    const payback = A / P;
+    const fixedCut = Math.max(0, F - (C * (P - A) / 1e6));
+
+    // месячный кэш
+    let cash = S;
+    let minCash = S, minIdx = 0;
+    const months = [];
+    let zeroIdx = -1;
+    SEQ.forEach((m, i) => {
+      const sh = SHARE[m] || 0;
+      const rev = revenue * sh;
+      const ads = marketing * sh;
+      const ebit = rev - ads - F / 12;
+      cash += ebit;
+      if (cash < minCash){ minCash = cash; minIdx = i; }
+      if (cash < 0 && zeroIdx === -1) zeroIdx = i;
+      months.push({idx:i, m, rev, ads, ebit, cash});
+    });
+
+    const runway = ebitda >= 0 ? Infinity : (S / (-ebitda / 12));
+    const gapClients = Math.max(0, breakEven - C);
+    const gapPct = C > 0 ? gapClients / C * 100 : 0;
+
+    return {C,P,A,F,S,R,revenue,marketing,ebitda,margin,cashEnd,breakEven,ltv,ltvCac,payback,fixedCut,months,minCash,minIdx,zeroIdx,runway,gapClients,gapPct};
+  }
+
+  function monthName(i){ return MONTHS[SEQ[i]]; }
+  function monthFull(i){ return MONTHS_FULL[SEQ[i]]; }
+  function monthPrep(i){ return MONTHS_PREP[SEQ[i]]; }
+  function monthYear(i){ return i < 2 ? "2026" : "2027"; }
+
+  function renderKpis(M){
+    $("#kRevenue").textContent = fmtM2(M.revenue);
+    $("#kRevenueSub").textContent = fmtInt(M.C) + " клиентов × " + fmtInt(M.P) + " ₽";
+    $("#kMarketing").textContent = fmtM2(M.marketing);
+    const adShare = M.revenue > 0 ? M.marketing / M.revenue * 100 : 0;
+    $("#kMarketingSub").textContent = Math.round(adShare) + "% от выручки · CAC " + fmtInt(M.A) + " ₽";
+
+    $("#kEbitda").textContent = (M.ebitda < 0 ? "−" : "") + fmtM2(abs(M.ebitda));
+    $("#kEbitdaSub").textContent = "маржа " + fmtPct(M.margin);
+    const ec = $("#kEbitdaCard");
+    ec.classList.remove("pos","neg");
+    if (M.ebitda > 0.05) ec.classList.add("pos");
+    else if (M.ebitda < -0.05) ec.classList.add("neg");
+
+    $("#kCash").textContent = (M.cashEnd < 0 ? "−" : "") + fmtM2(abs(M.cashEnd));
+    $("#kCashSub").textContent = "старт " + fmtM(M.S) + " · минимум " + fmtM(M.minCash) + " млн ₽";
+    const cc = $("#kCashCard");
+    cc.classList.remove("pos","neg","warn");
+    if (M.cashEnd < 0 || M.minCash < 0) cc.classList.add("neg");
+    else if (M.cashEnd < 10) cc.classList.add("warn");
+    else if (M.ebitda >= 0) cc.classList.add("pos");
+
+    const be = $("#sBreakEven");
+    if (!isFinite(M.breakEven) || M.breakEven > 20000){
+      be.innerHTML = ">20 000 <small>клиентов</small>";
+    } else {
+      const bev = Math.ceil(M.breakEven / 50) * 50;
+      be.innerHTML = fmtInt(bev) + " <small>" + plural(bev, ["клиент","клиента","клиентов"]) + "</small>";
+    }
+    $("#sBreakEvenSub").textContent = "фикс " + fmtM(M.F) + " млн ₽ ÷ (комиссия − CAC)";
+
+    const lv = $("#sLtv");
+    lv.textContent = isFinite(M.ltvCac) ? M.ltvCac.toLocaleString("ru-RU", {minimumFractionDigits:1, maximumFractionDigits:1}) + "×" : "—";
+    lv.style.color = M.ltvCac >= 2 ? "var(--green)" : (M.ltvCac >= 1 ? "#8A5E00" : "var(--red)");
+    $("#sLtvSub").textContent = "повтор " + M.R * 100 + "% в год";
+
+    $("#sPayback").innerHTML = M.payback.toLocaleString("ru-RU", {minimumFractionDigits:1, maximumFractionDigits:1}) + " <small>брони</small>";
+    $("#sPaybackSub").textContent = "CAC " + fmtInt(M.A) + " ₽ ÷ комиссия " + fmtInt(M.P) + " ₽";
+
+    const rw = $("#sRunway");
+    if (M.minCash < 0){
+      rw.textContent = "−" + fmtM2(abs(M.minCash)) + " млн";
+      rw.style.color = "var(--red)";
+      $("#sRunwaySub").textContent = "минус в " + monthPrep(M.minIdx) + " " + monthYear(M.minIdx);
+    } else {
+      rw.textContent = fmtM2(M.minCash) + " млн";
+      rw.style.color = M.minCash < 10 ? "#8A5E00" : "var(--green)";
+      $("#sRunwaySub").textContent = "минимум в " + monthPrep(M.minIdx) + " " + monthYear(M.minIdx);
+    }
+
+    const st = $("#status");
+    st.classList.remove("neutral","neg");
+    if (M.ebitda >= 0.3){ st.textContent = "Прибыль"; }
+    else if (M.ebitda > -0.3){ st.textContent = "Около нуля"; st.classList.add("neutral"); }
+    else { st.textContent = "Убыток"; st.classList.add("neg"); }
+
+    renderNarrative(M);
+    updatePresetActive();
+  }
+
+  function renderNarrative(M){
+    const el = $("#narrative");
+    const t = $("#narrativeText");
+    el.classList.remove("neg","neutral");
+
+    if (M.P <= M.A){
+      el.classList.add("neg");
+      t.innerHTML = "CAC <b>выше комиссии</b> — каждый новый клиент убыточен ещё до постоянных расходов. Сначала снижайте стоимость привлечения или повышайте комиссию, а не объём.";
+      return;
+    }
+
+    const minTxt = M.minCash < 0
+      ? " Внимание: запас уходит в минус в <b>" + monthPrep(M.minIdx) + " " + monthYear(M.minIdx) + "</b>."
+      : " Минимум запаса — <b>" + fmtM2(M.minCash) + " млн ₽</b> в " + monthPrep(M.minIdx) + ".";
+    if (M.ebitda >= 0.3){
+      t.innerHTML = "Сценарий прибыльный: <b>+" + fmtM2(M.ebitda) + " млн ₽</b> за год. Запас растёт до <b>" + fmtM2(M.cashEnd) + " млн ₽</b>." + minTxt + " Безубыточность — при " + fmtInt(Math.ceil(M.breakEven / 50) * 50) + " " + plural(Math.ceil(M.breakEven / 50) * 50, ["клиенте","клиентах","клиентах"]) + ", у вас " + fmtInt(M.C) + ".";
+    } else if (M.ebitda > -0.3){
+      el.classList.add("neutral");
+      const need = Math.ceil((M.breakEven + 50) / 50) * 50;
+      t.innerHTML = "Сценарий около нуля: <b>" + sign(M.ebitda) + fmtM2(abs(M.ebitda)) + " млн ₽</b>. Запас к концу — <b>" + fmtM2(M.cashEnd) + " млн ₽</b>." + minTxt + " Для уверенного плюса нужно " + fmtInt(need) + " " + plural(need, ["клиент","клиента","клиентов"]) + " или CAC ниже " + fmtInt(Math.max(0, M.P - M.F * 1e6 / Math.max(1, M.C))) + " ₽.";
+    } else {
+      el.classList.add("neg");
+      const gapN = Math.ceil(M.gapClients / 50) * 50;
+      const gap = M.gapClients > 0 ? "нужно ещё <b>+" + fmtInt(gapN) + " " + plural(gapN, ["клиент","клиента","клиентов"]) + "</b> (+" + Math.round(M.gapPct) + "%)" : "";
+      const cut = M.fixedCut > 0.01 ? "или сократить фикс на <b>" + fmtM2(M.fixedCut) + " млн ₽</b>" : "";
+      const cash = M.zeroIdx >= 0 ? " Запас уходит в минус в <b>" + monthPrep(M.zeroIdx) + " " + monthYear(M.zeroIdx) + "</b>." : "";
+      if (M.breakEven > 10000){
+        t.innerHTML = "Убыток <b>−" + fmtM2(abs(M.ebitda)) + " млн ₽</b>. При такой экономике безубыточность недостижима: нужно <b>" + fmtInt(Math.round(M.breakEven)) + " клиентов</b>. Сначала снижайте CAC и фиксируйте расходы." + cash;
+      } else {
+        t.innerHTML = "Убыток <b>−" + fmtM2(abs(M.ebitda)) + " млн ₽</b>. Чтобы выйти в ноль, " + gap + (gap && cut ? " " : "") + cut + "." + cash;
+      }
+    }
+  }
+
+  function updatePresetActive(){
+    document.querySelectorAll(".preset").forEach(b => {
+      const p = PRESETS[b.dataset.preset];
+      const active = Math.abs(p.c - state.c) < 1 && Math.abs(p.p - state.p) < 1 && Math.abs(p.a - state.a) < 1 && Math.abs(p.f - state.f) < 1 && Math.abs(p.r - state.r) < .05 && Math.abs(p.s - state.s) < 1;
+      b.classList.toggle("active", active);
+    });
+  }
+
+  /* ---------------- bars ---------------- */
+  function renderBars(M){
+    const W = 680, H = 260, L = 44, R = 8, T = 12, B = 30;
+    const pw = W - L - R, ph = H - T - B;
+    const vals = M.months.map(d => Math.max(d.rev, d.ads));
+    const maxV = Math.max(...vals, 0.5);
+    const top = Math.max(2, Math.ceil(maxV / 2) * 2);
+    const group = pw / 12;
+    const barW = 15, gap = 3;
+
+    let s = "";
+    // grid
+    for (let g = 0; g <= 2; g++){
+      const val = top * g / 2;
+      const y = T + ph - (val / top) * ph;
+      s += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="#EEF1F5" stroke-width="1"/>`;
+      s += `<text x="${L-8}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9">${val.toLocaleString("ru-RU",{maximumFractionDigits:1})}</text>`;
+    }
+
+    M.months.forEach((d, i) => {
+      const cx = L + group * i + group / 2;
+      const x1 = cx - barW - gap / 2;
+      const x2 = cx + gap / 2;
+      const h1 = Math.max(0, d.rev / top * ph);
+      const h2 = Math.max(0, d.ads / top * ph);
+      const y1 = T + ph - h1;
+      const y2 = T + ph - h2;
+      const label = MONTHS[d.m];
+      s += `<g class="bars">`;
+      s += `<rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${barW}" height="${h1.toFixed(1)}" fill="#14243B" rx="1.5"><title>${label}: выручка ${fmtM2(d.rev)} млн ₽</title></rect>`;
+      s += `<rect x="${x2.toFixed(1)}" y="${y2.toFixed(1)}" width="${barW}" height="${h2.toFixed(1)}" fill="#F5B335" rx="1.5"><title>${label}: реклама ${fmtM2(d.ads)} млн ₽</title></rect>`;
+      s += `</g>`;
+      s += `<text x="${cx}" y="${H-10}" text-anchor="middle" font-size="9.5" fill="#4C5A6B">${label}</text>`;
+      if (d.rev >= 0.5){
+        s += `<text x="${cx}" y="${(y1-5).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="#4C5A6B">${fmtM(d.rev)}</text>`;
+      }
+    });
+
+    $("#bars").innerHTML = s;
+  }
+
+  /* ---------------- cash line ---------------- */
+  function renderCash(M){
+    const W = 680, H = 230, L = 46, R = 14, T = 14, B = 28;
+    const pw = W - L - R, ph = H - T - B;
+    const vals = M.months.map(d => d.cash);
+    let lo = Math.min(...vals, 0);
+    let hi = Math.max(...vals, M.S, 10);
+    const pad = Math.max(1, (hi - lo) * 0.12);
+    lo -= pad; hi += pad;
+    if (hi - lo < 4){ hi = lo + 4; }
+    const x = (i) => L + (pw / (vals.length - 1)) * i;
+    const y = (v) => T + ph - ((v - lo) / (hi - lo)) * ph;
+
+    let s = "";
+    // grid
+    for (let g = 0; g <= 2; g++){
+      const v = lo + (hi - lo) * g / 2;
+      s += `<line x1="${L}" y1="${y(v).toFixed(1)}" x2="${W-R}" y2="${y(v).toFixed(1)}" stroke="#EEF1F5" stroke-width="1"/>`;
+      s += `<text x="${L-8}" y="${(y(v)+3).toFixed(1)}" text-anchor="end" font-size="9">${v.toLocaleString("ru-RU",{maximumFractionDigits:1})}</text>`;
+    }
+    // 10M floor
+    if (lo < 10 && hi > 10){
+      s += `<line x1="${L}" y1="${y(10).toFixed(1)}" x2="${W-R}" y2="${y(10).toFixed(1)}" stroke="#C2412D" stroke-width="1" stroke-dasharray="3 3" opacity=".55"/>`;
+      s += `<text x="${W-R}" y="${(y(10)-5).toFixed(1)}" text-anchor="end" font-size="8.5" fill="#A9321F">порог 10</text>`;
+    }
+    // zero
+    if (lo < 0 && hi > 0){
+      s += `<line x1="${L}" y1="${y(0).toFixed(1)}" x2="${W-R}" y2="${y(0).toFixed(1)}" stroke="#C2412D" stroke-width="1" opacity=".5"/>`;
+      s += `<text x="${L+2}" y="${(y(0)-4).toFixed(1)}" font-size="8.5" fill="#A9321F">0</text>`;
+    }
+
+    // area + line
+    const pts = vals.map((v,i) => [x(i), y(v)]);
+    const line = pts.map((p,i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    const baseY = y(lo);
+    const area = `M ${pts[0][0].toFixed(1)} ${baseY.toFixed(1)} ` + pts.map(p => "L " + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ") + ` L ${pts[pts.length-1][0].toFixed(1)} ${baseY.toFixed(1)} Z`;
+    const col = M.minCash < 0 ? "#C2412D" : "#14243B";
+    s += `<path d="${area}" fill="${col}" opacity=".07"/>`;
+    s += `<path d="${line}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+    // dots + labels
+    M.months.forEach((d,i) => {
+      s += `<circle cx="${x(i).toFixed(1)}" cy="${y(d.cash).toFixed(1)}" r="3.2" fill="#fff" stroke="${col}" stroke-width="2"><title>${monthName(i)} ${monthYear(i)}: ${fmtM2(d.cash)} млн ₽</title></circle>`;
+      if (i % 2 === 0 || i === 11){
+        s += `<text x="${x(i).toFixed(1)}" y="${H-9}" text-anchor="middle" font-size="9" fill="#4C5A6B">${monthName(i)}</text>`;
+      }
+    });
+
+    // min + end callouts
+    const mi = M.minIdx;
+    s += `<text x="${x(mi).toFixed(1)}" y="${(y(vals[mi])+16).toFixed(1)}" text-anchor="middle" font-size="9" fill="${M.minCash < 0 ? "#C2412D" : "#4C5A6B"}">мин. ${fmtM2(vals[mi])}</text>`;
+    const last = vals[vals.length-1];
+    s += `<text x="${(W-R).toFixed(1)}" y="${(y(last)-9).toFixed(1)}" text-anchor="end" font-size="9" fill="${last < 0 ? "#C2412D" : "#1F7A5C"}">конец ${fmtM2(last)}</text>`;
+
+    $("#cash").innerHTML = s;
+    $("#cashLegend").textContent = "мин. " + fmtM2(M.minCash) + " · конец " + fmtM2(M.cashEnd);
+  }
+
+  /* ---------------- sensitivity ---------------- */
+  const SENS_CAC = [1800, 2100, 2350, 2600, 3000, 3500];
+  const SENS_CLIENTS = [2400, 2800, 3250, 3600, 4000];
+
+  function renderSens(M){
+    const F = M.F;
+    const P = M.P;
+    let html = "<thead><tr><th class='rowh'>CAC, ₽ \\ клиенты</th>";
+    SENS_CLIENTS.forEach(c => { html += `<th>${fmtInt(c)}</th>`; });
+    html += "</tr></thead><tbody>";
+
+    SENS_CAC.forEach(a => {
+      html += "<tr>";
+      html += `<td class="rowh-cell">${fmtInt(a)}</td>`;
+      SENS_CLIENTS.forEach(c => {
+        const e = c * (P - a) / 1e6 - F;
+        let bg, fg;
+        if (e >= 1.5){ bg = "#DDF0E6"; fg = "#155C44"; }
+        else if (e >= 0.3){ bg = "#EAF6EF"; fg = "#1F7A5C"; }
+        else if (e >= -0.3){ bg = "#FFF6E2"; fg = "#8A5E00"; }
+        else if (e >= -1.5){ bg = "#FBE7E2"; fg = "#A9321F"; }
+        else { bg = "#F6D9D2"; fg = "#8E2A19"; }
+        const cur = (Math.abs(a - M.A) < 1 && Math.abs(c - M.C) < 1);
+        html += `<td class="${cur ? "cur" : ""}" data-c="${c}" data-a="${a}" style="background:${bg};color:${fg}" title="Клиенты ${fmtInt(c)}, CAC ${fmtInt(a)} ₽">`;
+        html += (e >= 0 ? "+" : "−") + fmtM2(abs(e));
+        if (e >= -0.15 && e <= 0.15) html += `<span class="zero">≈ 0</span>`;
+        html += "</td>";
+      });
+      html += "</tr>";
+    });
+    html += "</tbody>";
+    $("#sens").innerHTML = html;
+  }
+
+  /* ---------------- full render ---------------- */
+  function render(){
+    readInputs();
+    updateLabels();
+    syncFill();
+    const M = model();
+    renderKpis(M);
+    renderBars(M);
+    renderCash(M);
+    renderSens(M);
+    updateHash();
+  }
+
+  /* ---------------- URL state ---------------- */
+  function updateHash(){
+    const q = `c=${state.c}&p=${state.p}&a=${state.a}&f=${state.f}&r=${state.r}&s=${state.s}`;
+    try { history.replaceState(null, "", "#" + q); } catch (e) {}
+  }
+  function loadHash(){
+    if (!location.hash) return false;
+    const q = new URLSearchParams(location.hash.slice(1));
+    if (!q.has("c")) return false;
+    const map = {c:"c", p:"p", a:"a", f:"f", r:"r", s:"s"};
+    let ok = false;
+    Object.keys(map).forEach(k => {
+      if (q.has(k)){
+        const v = +q.get(k);
+        if (isFinite(v)){ state[map[k]] = v; ok = true; }
+      }
+    });
+    return ok;
+  }
+
+  /* ---------------- events ---------------- */
+  document.querySelectorAll("input[type=range]").forEach(inp => {
+    inp.addEventListener("input", () => { render(); });
+  });
+
+  document.querySelectorAll(".preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = PRESETS[btn.dataset.preset];
+      Object.assign(state, p);
+      writeInputs();
+      render();
+    });
+  });
+
+  $("#sens").addEventListener("click", (e) => {
+    const td = e.target.closest("td[data-c]");
+    if (!td) return;
+    state.c = +td.dataset.c;
+    state.a = +td.dataset.a;
+    writeInputs();
+    render();
+  });
+
+  $("#btnReset").addEventListener("click", () => {
+    Object.assign(state, PRESETS.base);
+    writeInputs();
+    render();
+    toast("Сброшено на базу-27");
+  });
+
+  $("#btnPrint").addEventListener("click", () => window.print());
+
+  $("#btnLink").addEventListener("click", async () => {
+    updateHash();
+    try {
+      await navigator.clipboard.writeText(location.href);
+      toast("Ссылка на сценарий скопирована");
+    } catch (err) {
+      window.prompt("Скопируйте ссылку:", location.href);
+    }
+  });
+
+  let toastTimer;
+  function toast(msg){
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+  }
+
+  // init
+  loadHash();
+  writeInputs();
+  render();
+})();
+</script>
+</body>
+</html>
